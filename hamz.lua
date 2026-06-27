@@ -1,31 +1,31 @@
 -- Hamz - Survive The Killer Full Script v2.0
 -- Created by Hamz
--- FIXED: Horizontal menu, all features working, ESP with color differentiation
+-- HORIZONTAL MENU + ESP WARNA + HIDE TOGGLE
 
 local player = game.Players.LocalPlayer
 local char = player.Character or player.CharacterAdded:Wait()
 local hum = char:WaitForChild("Humanoid")
 local root = char:WaitForChild("HumanoidRootPart")
 
--- ========== GUI ==========
+-- ========== GUI HORIZONTAL ==========
 local sg = Instance.new("ScreenGui")
 sg.Name = "Hamz"
 sg.Parent = player.PlayerGui
 
--- Main Frame (HORIZONTAL - lebih kecil)
+-- Main Frame (HORIZONTAL - kecil kayak gambar)
 local f = Instance.new("Frame")
-f.Size = UDim2.new(0, 560, 0, 120)
-f.Position = UDim2.new(0.5, -280, 0, 10)
+f.Size = UDim2.new(0, 580, 0, 110)
+f.Position = UDim2.new(0.5, -290, 0, 10)
 f.BackgroundColor3 = Color3.fromRGB(10, 10, 20)
-f.BackgroundTransparency = 0.2
+f.BackgroundTransparency = 0.15
 f.BorderSizePixel = 0
 f.Draggable = true
 f.Active = true
 f.Parent = sg
 
--- Title
+-- Title "HAMZ"
 local title = Instance.new("TextLabel")
-title.Size = UDim2.new(0, 70, 0, 30)
+title.Size = UDim2.new(0, 60, 0, 30)
 title.Position = UDim2.new(0.01, 0, 0, 0)
 title.BackgroundTransparency = 1
 title.Text = "🔥HAMZ"
@@ -34,9 +34,9 @@ title.TextScaled = true
 title.Font = Enum.Font.GothamBold
 title.Parent = f
 
--- ========== TOGGLE HIDE ==========
+-- ========== BUTTON HIDE ==========
 local hideBtn = Instance.new("TextButton")
-hideBtn.Size = UDim2.new(0, 40, 0, 20)
+hideBtn.Size = UDim2.new(0, 35, 0, 20)
 hideBtn.Position = UDim2.new(0.93, 0, 0, 0)
 hideBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 hideBtn.Text = "🔽"
@@ -55,13 +55,13 @@ hideBtn.MouseButton1Click:Connect(function()
         end
     end
     hideBtn.Text = visible and "🔽" or "🔼"
-    f.Size = visible and UDim2.new(0, 560, 0, 120) or UDim2.new(0, 560, 0, 30)
+    f.Size = visible and UDim2.new(0, 580, 0, 110) or UDim2.new(0, 580, 0, 30)
 end)
 
--- ========== BUTTON MAKER ==========
+-- ========== FUNGSI BUAT TOMBOL ==========
 local function makeBtn(text, posX, posY, color, callback)
     local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(0, 68, 0, 30)
+    btn.Size = UDim2.new(0, 72, 0, 30)
     btn.Position = UDim2.new(posX, 0, posY, 0)
     btn.BackgroundColor3 = color
     btn.Text = text
@@ -81,7 +81,7 @@ end
 -- ========== FITUR 1: INFINITE JUMP (FIXED) ==========
 local jumpActive = false
 local jumpConnection
-makeBtn("🦘Jump", 0.12, 0.05, Color3.fromRGB(30, 150, 200), function(act, btn)
+makeBtn("🦘Jump", 0.10, 0.05, Color3.fromRGB(30, 150, 200), function(act, btn)
     jumpActive = act
     btn.BackgroundColor3 = act and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(30, 150, 200)
     btn.Text = act and "🦘ON" or "🦘Jump"
@@ -100,7 +100,7 @@ end)
 
 -- ========== FITUR 2: SPEED HACK (FIXED) ==========
 local speedActive = false
-makeBtn("💨Speed", 0.23, 0.05, Color3.fromRGB(150, 30, 200), function(act, btn)
+makeBtn("💨Speed", 0.22, 0.05, Color3.fromRGB(150, 30, 200), function(act, btn)
     speedActive = act
     btn.BackgroundColor3 = act and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(150, 30, 200)
     btn.Text = act and "💨ON" or "💨Speed"
@@ -109,14 +109,14 @@ makeBtn("💨Speed", 0.23, 0.05, Color3.fromRGB(150, 30, 200), function(act, btn
     end
 end)
 
--- ========== FITUR 3: ESP DENGAN WARNA (FIXED) ==========
+-- ========== FITUR 3: ESP BEDA WARNA (FIXED) ==========
 local espActive = false
 makeBtn("👁️ESP", 0.34, 0.05, Color3.fromRGB(200, 150, 30), function(act, btn)
     espActive = act
     btn.BackgroundColor3 = act and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 150, 30)
     btn.Text = act and "👁️ON" or "👁️ESP"
     
-    -- Hapus semua ESP lama
+    -- Hapus ESP lama
     for _, v in pairs(game:GetService("Players"):GetPlayers()) do
         if v ~= player and v.Character then
             local h = v.Character:FindFirstChild("Highlight")
@@ -125,7 +125,6 @@ makeBtn("👁️ESP", 0.34, 0.05, Color3.fromRGB(200, 150, 30), function(act, bt
     end
     
     if act then
-        -- Fungsi update ESP setiap detik
         spawn(function()
             while espActive do
                 for _, v in pairs(game:GetService("Players"):GetPlayers()) do
@@ -139,9 +138,8 @@ makeBtn("👁️ESP", 0.34, 0.05, Color3.fromRGB(200, 150, 30), function(act, bt
                             h.Parent = v.Character
                         end
                         
-                        -- CEK APAKAH DIA PEMBUNUH (MURDERER)
+                        -- CEK APAKAH DIA PEMBUNUH
                         local isMurderer = false
-                        -- Cek dari game state (biasanya ada di PlayerStats atau leaderstats)
                         local stats = v:FindFirstChild("leaderstats")
                         if stats then
                             local role = stats:FindFirstChild("Role")
@@ -149,7 +147,6 @@ makeBtn("👁️ESP", 0.34, 0.05, Color3.fromRGB(200, 150, 30), function(act, bt
                                 isMurderer = true
                             end
                         end
-                        -- Alternatif: cek dari player data
                         if not isMurderer then
                             local data = v:FindFirstChild("PlayerData")
                             if data then
@@ -160,7 +157,7 @@ makeBtn("👁️ESP", 0.34, 0.05, Color3.fromRGB(200, 150, 30), function(act, bt
                             end
                         end
                         
-                        -- Set warna: MERAH untuk pembunuh, BIRU untuk survivor
+                        -- WARNA: MERAH = KILLER, BIRU = SURVIVOR
                         if isMurderer then
                             h.FillColor = Color3.fromRGB(255, 0, 0) -- MERAH
                             h.OutlineColor = Color3.fromRGB(255, 100, 100)
@@ -178,7 +175,7 @@ end)
 
 -- ========== FITUR 4: AUTO MURDERER (FIXED) ==========
 local murderActive = false
-makeBtn("🔪Kill", 0.45, 0.05, Color3.fromRGB(200, 30, 30), function(act, btn)
+makeBtn("🔪Kill", 0.46, 0.05, Color3.fromRGB(200, 30, 30), function(act, btn)
     murderActive = act
     btn.BackgroundColor3 = act and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 30, 30)
     btn.Text = act and "🔪ON" or "🔪Kill"
@@ -203,9 +200,9 @@ makeBtn("🔪Kill", 0.45, 0.05, Color3.fromRGB(200, 30, 30), function(act, btn)
     end
 end)
 
--- ========== FITUR 5: AUTO KILL ALL (NEW) ==========
+-- ========== FITUR 5: KILL ALL ==========
 local killAllActive = false
-makeBtn("💀All", 0.56, 0.05, Color3.fromRGB(255, 0, 100), function(act, btn)
+makeBtn("💀All", 0.58, 0.05, Color3.fromRGB(255, 0, 100), function(act, btn)
     killAllActive = act
     btn.BackgroundColor3 = act and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(255, 0, 100)
     btn.Text = act and "💀ON" or "💀All"
@@ -232,14 +229,13 @@ end)
 
 -- ========== FITUR 6: AUTO FARM LOOT (FIXED) ==========
 local lootActive = false
-makeBtn("💎Loot", 0.67, 0.05, Color3.fromRGB(30, 200, 150), function(act, btn)
+makeBtn("💎Loot", 0.70, 0.05, Color3.fromRGB(30, 200, 150), function(act, btn)
     lootActive = act
     btn.BackgroundColor3 = act and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(30, 200, 150)
     btn.Text = act and "💎ON" or "💎Loot"
     if act then
         spawn(function()
             while lootActive do
-                -- Cari loot di workspace
                 for _, item in pairs(game:GetService("Workspace"):GetDescendants()) do
                     if lootActive and item:IsA("Part") and item.Name:lower():find("loot") then
                         if root and root.Parent then
@@ -248,7 +244,6 @@ makeBtn("💎Loot", 0.67, 0.05, Color3.fromRGB(30, 200, 150), function(act, btn)
                         end
                     end
                 end
-                -- Cari loot di folder lain
                 for _, folder in pairs(game:GetService("Workspace"):GetChildren()) do
                     if lootActive and folder:IsA("Folder") and folder.Name:lower():find("loot") then
                         for _, item in pairs(folder:GetChildren()) do
@@ -302,10 +297,10 @@ end)
 
 -- ========== STATUS ==========
 local status = Instance.new("TextLabel")
-status.Size = UDim2.new(0, 120, 0, 20)
-status.Position = UDim2.new(0.78, 0, 0.75, 0)
+status.Size = UDim2.new(0, 100, 0, 20)
+status.Position = UDim2.new(0.80, 0, 0.75, 0)
 status.BackgroundTransparency = 1
-status.Text = "✅ v2.0 by Hamz"
+status.Text = "✅v2.0"
 status.TextColor3 = Color3.fromRGB(0, 255, 100)
 status.TextScaled = true
 status.Font = Enum.Font.GothamBold
