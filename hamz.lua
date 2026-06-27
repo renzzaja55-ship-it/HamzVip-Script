@@ -1,6 +1,6 @@
--- Grow a Garden - Hamz Edition v1.0
+-- Blue Lock: Rivals - Hamz Edition v3.0
 -- Created by Hamz
--- Fitur Lengkap untuk Delta Executor
+-- Added OP Skills: Super Kick, Curve Ball, Instant Goal, Skill Spam, Auto Shoot
 
 local player = game.Players.LocalPlayer
 local char = player.Character or player.CharacterAdded:Wait()
@@ -9,12 +9,12 @@ local root = char:WaitForChild("HumanoidRootPart")
 
 -- ========== GUI ==========
 local sg = Instance.new("ScreenGui")
-sg.Name = "Hamz_Garden"
+sg.Name = "Hamz_BlueLock"
 sg.Parent = player.PlayerGui
 
 local f = Instance.new("Frame")
-f.Size = UDim2.new(0, 350, 0, 400)
-f.Position = UDim2.new(0.7, 0, 0.15, 0)
+f.Size = UDim2.new(0, 350, 0, 480)
+f.Position = UDim2.new(0.7, 0, 0.1, 0)
 f.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
 f.BackgroundTransparency = 0.1
 f.BorderSizePixel = 1
@@ -34,8 +34,8 @@ local title = Instance.new("TextLabel")
 title.Size = UDim2.new(0.6, 0, 1, 0)
 title.Position = UDim2.new(0.05, 0, 0, 0)
 title.BackgroundTransparency = 1
-title.Text = "🌱 GROW GARDEN"
-title.TextColor3 = Color3.fromRGB(50, 255, 100)
+title.Text = "⚽ BLUE LOCK v3"
+title.TextColor3 = Color3.fromRGB(50, 200, 255)
 title.TextXAlignment = Enum.TextXAlignment.Left
 title.TextScaled = true
 title.Font = Enum.Font.GothamBold
@@ -61,7 +61,7 @@ hideBtn.MouseButton1Click:Connect(function()
             child.Visible = visible
         end
     end
-    f.Size = visible and UDim2.new(0, 350, 0, 400) or UDim2.new(0, 350, 0, 30)
+    f.Size = visible and UDim2.new(0, 350, 0, 480) or UDim2.new(0, 350, 0, 30)
     hideBtn.Text = visible and "─" or "+"
 end)
 
@@ -73,13 +73,13 @@ tabFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 35)
 tabFrame.BorderSizePixel = 0
 tabFrame.Parent = f
 
-local tabs = {"Main", "Farm", "Pet", "Misc"}
+local tabs = {"Main", "Combat", "Movement", "Skills", "Ball"}
 local tabBtns = {}
 local currentTab = "Main"
 
 local function createTab(name, pos)
     local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(0.25, 0, 1, 0)
+    btn.Size = UDim2.new(0.2, 0, 1, 0)
     btn.Position = UDim2.new(pos, 0, 0, 0)
     btn.BackgroundColor3 = Color3.fromRGB(20, 20, 35)
     btn.Text = name
@@ -92,7 +92,7 @@ local function createTab(name, pos)
 end
 
 for i, name in ipairs(tabs) do
-    local btn = createTab(name, (i-1) * 0.25)
+    local btn = createTab(name, (i-1) * 0.2)
     tabBtns[name] = btn
     btn.MouseButton1Click:Connect(function()
         currentTab = name
@@ -116,7 +116,7 @@ content.Parent = f
 -- ========== FUNGSI TOGGLE ==========
 local function makeToggle(text, posY, color, callback)
     local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(0.9, 0, 0, 30)
+    btn.Size = UDim2.new(0.9, 0, 0, 28)
     btn.Position = UDim2.new(0.05, 0, posY, 0)
     btn.BackgroundColor3 = color
     btn.Text = text .. " [OFF]"
@@ -136,184 +136,516 @@ local function makeToggle(text, posY, color, callback)
 end
 
 -- ========== VARIABLES ==========
-local autoHarvestActive = false
-local autoSellActive = false
-local autoWalkActive = false
-local autoPlantActive = false
+local espActive = false
 local speedActive = false
-local petDupeActive = false
-local autoPetActive = false
+local flyActive = false
+local noclipActive = false
+local autoGoalActive = false
+local autoStealActive = false
+local autoFarmActive = false
+local noCooldownActive = false
+local superKickActive = false
+local autoDribbleActive = false
+local curveBallActive = false
+local instantGoalActive = false
+local skillSpamActive = false
+local autoShootActive = false
+local powerShotActive = false
 
 -- ========== FITUR LOGIC ==========
 
--- 1. AUTO HARVEST
-function toggleHarvest(act)
-    autoHarvestActive = act
+-- 1. ESP PEMAIN & BOLA
+function toggleESP(act)
+    espActive = act
+    -- Hapus ESP lama
+    for _, v in pairs(game:GetService("Players"):GetPlayers()) do
+        if v ~= player and v.Character then
+            local h = v.Character:FindFirstChild("Highlight")
+            if h then h:Destroy() end
+        end
+    end
+    for _, v in pairs(game:GetService("Workspace"):GetDescendants()) do
+        if v:IsA("Part") and v.Name:lower():find("ball") then
+            local h = v:FindFirstChild("Highlight")
+            if h then h:Destroy() end
+        end
+    end
+    
     if act then
         spawn(function()
-            while autoHarvestActive do
-                for _, v in pairs(game:GetService("Workspace"):GetDescendants()) do
-                    if autoHarvestActive and v:IsA("Part") and v.Name:lower():find("plant") then
-                        if root and root.Parent then
-                            root.CFrame = v.CFrame + Vector3.new(0, 2, 0)
-                            -- Coba panen
-                            local click = v:FindFirstChild("ClickDetector")
-                            if click then
-                                click:Click()
-                            end
-                            task.wait(0.2)
+            while espActive do
+                -- ESP Pemain
+                for _, v in pairs(game:GetService("Players"):GetPlayers()) do
+                    if v ~= player and v.Character then
+                        local h = v.Character:FindFirstChild("Highlight")
+                        if not h then
+                            h = Instance.new("Highlight")
+                            h.Adornee = v.Character
+                            h.FillColor = Color3.fromRGB(255, 100, 0)
+                            h.FillTransparency = 0.3
+                            h.OutlineTransparency = 0.2
+                            h.Parent = v.Character
                         end
                     end
                 end
-                task.wait(0.5)
+                -- ESP Bola
+                for _, v in pairs(game:GetService("Workspace"):GetDescendants()) do
+                    if v:IsA("Part") and v.Name:lower():find("ball") then
+                        local h = v:FindFirstChild("Highlight")
+                        if not h then
+                            h = Instance.new("Highlight")
+                            h.Adornee = v
+                            h.FillColor = Color3.fromRGB(255, 255, 0)
+                            h.FillTransparency = 0.2
+                            h.OutlineTransparency = 0.1
+                            h.Parent = v
+                        end
+                    end
+                end
+                task.wait(0.3)
             end
         end)
     end
 end
 
--- 2. AUTO SELL
-function toggleSell(act)
-    autoSellActive = act
-    if act then
-        spawn(function()
-            while autoSellActive do
-                for _, v in pairs(game:GetService("Workspace"):GetDescendants()) do
-                    if autoSellActive and v:IsA("Part") and v.Name:lower():find("sell") then
-                        if root and root.Parent then
-                            root.CFrame = v.CFrame + Vector3.new(0, 2, 0)
-                            local click = v:FindFirstChild("ClickDetector")
-                            if click then
-                                click:Click()
-                            end
-                            task.wait(0.2)
-                        end
-                    end
-                end
-                task.wait(0.5)
-            end
-        end)
-    end
-end
-
--- 3. AUTO WALK (ke tanaman)
-function toggleWalk(act)
-    autoWalkActive = act
-    if act then
-        spawn(function()
-            while autoWalkActive do
-                local nearest = nil
-                local dist = math.huge
-                for _, v in pairs(game:GetService("Workspace"):GetDescendants()) do
-                    if v:IsA("Part") and v.Name:lower():find("plant") then
-                        if v:FindFirstChild("ClickDetector") then
-                            local d = (root.Position - v.Position).Magnitude
-                            if d < dist then
-                                dist = d
-                                nearest = v
-                            end
-                        end
-                    end
-                end
-                if nearest then
-                    root.CFrame = nearest.CFrame + Vector3.new(0, 2, 0)
-                end
-                task.wait(1)
-            end
-        end)
-    end
-end
-
--- 4. AUTO PLANT
-function togglePlant(act)
-    autoPlantActive = act
-    if act then
-        spawn(function()
-            while autoPlantActive do
-                -- Cari tanah kosong
-                for _, v in pairs(game:GetService("Workspace"):GetDescendants()) do
-                    if autoPlantActive and v:IsA("Part") and v.Name:lower():find("dirt") then
-                        if root and root.Parent then
-                            root.CFrame = v.CFrame + Vector3.new(0, 2, 0)
-                            -- Tanam
-                            local click = v:FindFirstChild("ClickDetector")
-                            if click then
-                                click:Click()
-                            end
-                            task.wait(0.3)
-                        end
-                    end
-                end
-                task.wait(0.5)
-            end
-        end)
-    end
-end
-
--- 5. SPEED HACK
+-- 2. SPEED HACK
 function toggleSpeed(act)
     speedActive = act
     if hum and hum.Parent then
-        hum.WalkSpeed = act and 50 or 16
+        hum.WalkSpeed = act and 70 or 16
     end
 end
 
--- 6. PET DUPE
-function togglePetDupe(act)
-    petDupeActive = act
+-- 3. FLY
+function toggleFly(act)
+    flyActive = act
     if act then
-        spawn(function()
-            while petDupeActive do
-                for _, v in pairs(player:GetDescendants()) do
-                    if petDupeActive and v:IsA("Model") and v.Name:lower():find("pet") then
-                        -- Clone pet
-                        local clone = v:Clone()
-                        clone.Parent = v.Parent
-                        task.wait(0.1)
-                    end
-                end
-                task.wait(1)
+        local bv = Instance.new("BodyVelocity")
+        bv.Velocity = Vector3.new(0, 50, 0)
+        bv.MaxForce = Vector3.new(0, 100000, 0)
+        bv.Parent = root
+        game:GetService("UserInputService").JumpRequest:Connect(function()
+            if flyActive and root:FindFirstChild("BodyVelocity") then
+                root.BodyVelocity.Velocity = Vector3.new(0, 50, 0)
             end
         end)
+    else
+        if root:FindFirstChild("BodyVelocity") then
+            root.BodyVelocity:Destroy()
+        end
     end
 end
 
--- 7. AUTO PET (roll otomatis)
-function toggleAutoPet(act)
-    autoPetActive = act
+-- 4. NOCLIP
+function toggleNoclip(act)
+    noclipActive = act
     if act then
         spawn(function()
-            while autoPetActive do
+            while noclipActive do
+                if char and char:FindFirstChild("HumanoidRootPart") then
+                    char.HumanoidRootPart.CanCollide = false
+                end
+                task.wait(0.1)
+            end
+        end)
+    else
+        if char and char:FindFirstChild("HumanoidRootPart") then
+            char.HumanoidRootPart.CanCollide = true
+        end
+    end
+end
+
+-- 5. AUTO GOAL
+function toggleAutoGoal(act)
+    autoGoalActive = act
+    if act then
+        spawn(function()
+            while autoGoalActive do
+                local ball = nil
                 for _, v in pairs(game:GetService("Workspace"):GetDescendants()) do
-                    if autoPetActive and v:IsA("Part") and v.Name:lower():find("egg") then
-                        if root and root.Parent then
-                            root.CFrame = v.CFrame + Vector3.new(0, 2, 0)
-                            local click = v:FindFirstChild("ClickDetector")
-                            if click then
-                                click:Click()
-                            end
-                            task.wait(0.3)
+                    if v:IsA("Part") and v.Name:lower():find("ball") then
+                        ball = v
+                        break
+                    end
+                end
+                local enemyGoal = nil
+                for _, v in pairs(game:GetService("Workspace"):GetDescendants()) do
+                    if v:IsA("Part") and (v.Name:lower():find("goal") or v.Name:lower():find("gawang")) then
+                        local team = v:FindFirstChild("Team")
+                        if team and team.Value ~= player.Team then
+                            enemyGoal = v
+                            break
                         end
                     end
                 end
-                task.wait(1)
+                if ball and enemyGoal then
+                    root.CFrame = ball.CFrame + Vector3.new(0, 2, 2)
+                    task.wait(0.1)
+                    root.CFrame = enemyGoal.CFrame + Vector3.new(0, 2, 5)
+                    task.wait(0.2)
+                end
+                task.wait(0.5)
             end
         end)
     end
 end
 
--- 8. INFINITE COINS (visual/UI only)
-function toggleInfiniteCoins(act)
+-- 6. AUTO STEAL BALL
+function toggleAutoSteal(act)
+    autoStealActive = act
     if act then
         spawn(function()
-            while act do
-                local stats = player:FindFirstChild("leaderstats")
-                if stats then
-                    local coins = stats:FindFirstChild("Coins")
-                    if coins then
-                        coins.Value = 999999999
+            while autoStealActive do
+                local ball = nil
+                for _, v in pairs(game:GetService("Workspace"):GetDescendants()) do
+                    if v:IsA("Part") and v.Name:lower():find("ball") then
+                        ball = v
+                        break
                     end
                 end
-                task.wait(1)
+                
+                if ball then
+                    local ballOwner = nil
+                    for _, v in pairs(game:GetService("Players"):GetPlayers()) do
+                        if v ~= player and v.Character then
+                            for _, tool in pairs(v.Character:GetChildren()) do
+                                if tool:IsA("Tool") and tool.Name:lower():find("ball") then
+                                    ballOwner = v
+                                    break
+                                end
+                            end
+                        end
+                    end
+                    
+                    if ballOwner then
+                        root.CFrame = ballOwner.Character.HumanoidRootPart.CFrame + Vector3.new(0, 2, 2)
+                        task.wait(0.05)
+                        local remote = game:GetService("ReplicatedStorage"):FindFirstChild("Remotes")
+                        if remote then
+                            local tackle = remote:FindFirstChild("Tackle") or remote:FindFirstChild("Steal") or remote:FindFirstChild("Intercept")
+                            if tackle then
+                                tackle:FireServer(ballOwner)
+                            end
+                        end
+                        local click = ball:FindFirstChild("ClickDetector")
+                        if click then
+                            click:Click()
+                        end
+                    else
+                        root.CFrame = ball.CFrame + Vector3.new(0, 2, 2)
+                        task.wait(0.05)
+                        local click = ball:FindFirstChild("ClickDetector")
+                        if click then
+                            click:Click()
+                        end
+                    end
+                end
+                task.wait(0.3)
+            end
+        end)
+    end
+end
+
+-- 7. AUTO FARM
+function toggleAutoFarm(act)
+    autoFarmActive = act
+    if act then
+        spawn(function()
+            while autoFarmActive do
+                local ball = nil
+                for _, v in pairs(game:GetService("Workspace"):GetDescendants()) do
+                    if v:IsA("Part") and v.Name:lower():find("ball") then
+                        ball = v
+                        break
+                    end
+                end
+                if ball then
+                    root.CFrame = ball.CFrame + Vector3.new(0, 2, 2)
+                    task.wait(0.1)
+                    local click = ball:FindFirstChild("ClickDetector")
+                    if click then click:Click() end
+                end
+                for _, v in pairs(game:GetService("Workspace"):GetDescendants()) do
+                    if v:IsA("Part") and (v.Name:lower():find("goal") or v.Name:lower():find("gawang")) then
+                        local team = v:FindFirstChild("Team")
+                        if team and team.Value ~= player.Team then
+                            root.CFrame = v.CFrame + Vector3.new(0, 2, 5)
+                            task.wait(0.2)
+                        end
+                    end
+                end
+                task.wait(0.5)
+            end
+        end)
+    end
+end
+
+-- 8. NO COOLDOWN
+function toggleNoCooldown(act)
+    noCooldownActive = act
+    if act then
+        spawn(function()
+            while noCooldownActive do
+                local abilityController = game:GetService("ReplicatedStorage"):FindFirstChild("Controllers")
+                if abilityController then
+                    local ac = abilityController:FindFirstChild("AbilityController")
+                    if ac then
+                        local old = ac.AbilityCooldown
+                        ac.AbilityCooldown = function(s, n, ...)
+                            return old(s, n, 0, ...)
+                        end
+                    end
+                end
+                task.wait(5)
+            end
+        end)
+    end
+end
+
+-- 9. SUPER KICK V2 (Efek Ledakan)
+function toggleSuperKick(act)
+    superKickActive = act
+    if act then
+        spawn(function()
+            while superKickActive do
+                for _, v in pairs(game:GetService("Workspace"):GetDescendants()) do
+                    if superKickActive and v:IsA("Part") and v.Name:lower():find("ball") then
+                        -- Ledakan efek
+                        local explosion = Instance.new("Explosion")
+                        explosion.Position = v.Position
+                        explosion.BlastRadius = 10
+                        explosion.BlastPressure = 1000
+                        explosion.Parent = game:GetService("Workspace")
+                        -- Tendang bola dengan kecepatan tinggi
+                        local bv = Instance.new("BodyVelocity")
+                        bv.Velocity = Vector3.new(0, 200, 200)
+                        bv.MaxForce = Vector3.new(100000, 100000, 100000)
+                        bv.Parent = v
+                        task.wait(0.1)
+                        bv:Destroy()
+                        -- Efek visual tambahan
+                        local part = Instance.new("Part")
+                        part.Size = Vector3.new(5, 5, 5)
+                        part.Position = v.Position
+                        part.Anchored = true
+                        part.CanCollide = false
+                        part.BrickColor = BrickColor.new("Bright red")
+                        part.Material = Enum.Material.Neon
+                        part.Parent = game:GetService("Workspace")
+                        game:GetService("Debris"):AddItem(part, 0.5)
+                    end
+                end
+                task.wait(0.3)
+            end
+        end)
+    end
+end
+
+-- 10. AUTO DRIBBLE
+function toggleAutoDribble(act)
+    autoDribbleActive = act
+    if act then
+        spawn(function()
+            while autoDribbleActive do
+                for _, v in pairs(game:GetService("Workspace"):GetDescendants()) do
+                    if autoDribbleActive and v:IsA("Part") and v.Name:lower():find("ball") then
+                        root.CFrame = v.CFrame + Vector3.new(0, 2, 1)
+                        task.wait(0.05)
+                        for _, g in pairs(game:GetService("Workspace"):GetDescendants()) do
+                            if g:IsA("Part") and (g.Name:lower():find("goal") or g.Name:lower():find("gawang")) then
+                                local team = g:FindFirstChild("Team")
+                                if team and team.Value ~= player.Team then
+                                    local dir = (g.Position - root.Position).Unit
+                                    root.CFrame = root.CFrame + Vector3.new(dir.X * 5, 0, dir.Z * 5)
+                                    task.wait(0.05)
+                                end
+                            end
+                        end
+                    end
+                end
+                task.wait(0.2)
+            end
+        end)
+    end
+end
+
+-- ========== SKILL OP BARU ==========
+
+-- 11. CURVE BALL (Bola Berbelok)
+function toggleCurveBall(act)
+    curveBallActive = act
+    if act then
+        spawn(function()
+            while curveBallActive do
+                for _, v in pairs(game:GetService("Workspace"):GetDescendants()) do
+                    if curveBallActive and v:IsA("Part") and v.Name:lower():find("ball") then
+                        -- Beri efek curve/berbelok
+                        local bv = v:FindFirstChild("BodyVelocity")
+                        if not bv then
+                            bv = Instance.new("BodyVelocity")
+                            bv.MaxForce = Vector3.new(100000, 100000, 100000)
+                            bv.Parent = v
+                        end
+                        -- Belokkan bola secara acak
+                        local angle = math.rad(math.random(-45, 45))
+                        local dir = Vector3.new(math.sin(angle), 0, math.cos(angle))
+                        bv.Velocity = dir * 150
+                        task.wait(0.1)
+                    end
+                end
+                task.wait(0.2)
+            end
+        end)
+    end
+end
+
+-- 12. INSTANT GOAL (Langsung Gol!)
+function toggleInstantGoal(act)
+    instantGoalActive = act
+    if act then
+        spawn(function()
+            while instantGoalActive do
+                -- Cari gawang lawan
+                for _, v in pairs(game:GetService("Workspace"):GetDescendants()) do
+                    if instantGoalActive and v:IsA("Part") and (v.Name:lower():find("goal") or v.Name:lower():find("gawang")) then
+                        local team = v:FindFirstChild("Team")
+                        if team and team.Value ~= player.Team then
+                            -- Teleport bola ke dalam gawang
+                            for _, ball in pairs(game:GetService("Workspace"):GetDescendants()) do
+                                if ball:IsA("Part") and ball.Name:lower():find("ball") then
+                                    ball.CFrame = v.CFrame + Vector3.new(0, 2, 0)
+                                    -- Efek ledakan
+                                    local exp = Instance.new("Explosion")
+                                    exp.Position = v.Position
+                                    exp.BlastRadius = 5
+                                    exp.BlastPressure = 500
+                                    exp.Parent = game:GetService("Workspace")
+                                    task.wait(0.1)
+                                end
+                            end
+                        end
+                    end
+                end
+                task.wait(0.5)
+            end
+        end)
+    end
+end
+
+-- 13. SKILL SPAM (Spam Ability)
+function toggleSkillSpam(act)
+    skillSpamActive = act
+    if act then
+        spawn(function()
+            while skillSpamActive do
+                -- Cari semua remote yang berhubungan dengan skill
+                local remotes = game:GetService("ReplicatedStorage"):FindFirstChild("Remotes")
+                if remotes then
+                    for _, remote in pairs(remotes:GetChildren()) do
+                        if remote.Name:lower():find("skill") or remote.Name:lower():find("ability") or remote.Name:lower():find("shoot") then
+                            pcall(function()
+                                remote:FireServer()
+                            end)
+                        end
+                    end
+                end
+                -- Alternative: trigger ability melalui controller
+                local abilityController = game:GetService("ReplicatedStorage"):FindFirstChild("Controllers")
+                if abilityController then
+                    local ac = abilityController:FindFirstChild("AbilityController")
+                    if ac then
+                        pcall(function()
+                            ac:ActivateAbility()
+                        end)
+                    end
+                end
+                task.wait(0.1)
+            end
+        end)
+    end
+end
+
+-- 14. AUTO SHOOT (Tendang Otomatis ke Gawang)
+function toggleAutoShoot(act)
+    autoShootActive = act
+    if act then
+        spawn(function()
+            while autoShootActive do
+                local ball = nil
+                for _, v in pairs(game:GetService("Workspace"):GetDescendants()) do
+                    if v:IsA("Part") and v.Name:lower():find("ball") then
+                        ball = v
+                        break
+                    end
+                end
+                local enemyGoal = nil
+                for _, v in pairs(game:GetService("Workspace"):GetDescendants()) do
+                    if v:IsA("Part") and (v.Name:lower():find("goal") or v.Name:lower():find("gawang")) then
+                        local team = v:FindFirstChild("Team")
+                        if team and team.Value ~= player.Team then
+                            enemyGoal = v
+                            break
+                        end
+                    end
+                end
+                if ball and enemyGoal then
+                    -- Cek jarak bola ke gawang
+                    local dist = (ball.Position - enemyGoal.Position).Magnitude
+                    if dist < 50 then
+                        -- Tendang bola ke gawang
+                        local dir = (enemyGoal.Position - ball.Position).Unit
+                        local bv = Instance.new("BodyVelocity")
+                        bv.Velocity = dir * 200
+                        bv.MaxForce = Vector3.new(100000, 100000, 100000)
+                        bv.Parent = ball
+                        task.wait(0.1)
+                        bv:Destroy()
+                        -- Efek tendangan
+                        local exp = Instance.new("Explosion")
+                        exp.Position = ball.Position
+                        exp.BlastRadius = 3
+                        exp.BlastPressure = 300
+                        exp.Parent = game:GetService("Workspace")
+                    end
+                end
+                task.wait(0.2)
+            end
+        end)
+    end
+end
+
+-- 15. POWER SHOT (Tendangan Bertenaga)
+function togglePowerShot(act)
+    powerShotActive = act
+    if act then
+        spawn(function()
+            while powerShotActive do
+                for _, v in pairs(game:GetService("Workspace"):GetDescendants()) do
+                    if powerShotActive and v:IsA("Part") and v.Name:lower():find("ball") then
+                        -- Efek power shot
+                        local bv = Instance.new("BodyVelocity")
+                        bv.Velocity = Vector3.new(0, 300, 300)
+                        bv.MaxForce = Vector3.new(1000000, 1000000, 1000000)
+                        bv.Parent = v
+                        -- Tambah efek neon
+                        local neon = Instance.new("Part")
+                        neon.Size = Vector3.new(8, 8, 8)
+                        neon.Position = v.Position
+                        neon.Anchored = true
+                        neon.CanCollide = false
+                        neon.BrickColor = BrickColor.new("Bright yellow")
+                        neon.Material = Enum.Material.Neon
+                        neon.Parent = game:GetService("Workspace")
+                        game:GetService("Debris"):AddItem(neon, 0.3)
+                        -- Getarkan layar (simulasi)
+                        game:GetService("Workspace").CurrentCamera.FieldOfView = 120
+                        task.wait(0.05)
+                        game:GetService("Workspace").CurrentCamera.FieldOfView = 70
+                        task.wait(0.1)
+                        bv:Destroy()
+                    end
+                end
+                task.wait(0.3)
             end
         end)
     end
@@ -326,40 +658,71 @@ function updateTab(tab)
     end
     
     if tab == "Main" then
-        makeToggle("🌾 Auto Harvest", 0.05, Color3.fromRGB(50,200,50), toggleHarvest)
-        makeToggle("💰 Auto Sell", 0.20, Color3.fromRGB(255,215,0), toggleSell)
-        makeToggle("🚶 Auto Walk", 0.35, Color3.fromRGB(100,150,255), toggleWalk)
-        makeToggle("🌱 Auto Plant", 0.50, Color3.fromRGB(50,200,100), togglePlant)
-        makeToggle("💨 Speed Hack", 0.65, Color3.fromRGB(150,30,200), toggleSpeed)
+        makeToggle("👁️ ESP Player & Ball", 0.03, Color3.fromRGB(200,150,30), toggleESP)
+        makeToggle("⚡ Speed Hack", 0.16, Color3.fromRGB(150,30,200), toggleSpeed)
+        makeToggle("🎯 Auto Goal", 0.29, Color3.fromRGB(50,200,100), toggleAutoGoal)
+        makeToggle("🔄 Auto Steal Ball", 0.42, Color3.fromRGB(255,150,50), toggleAutoSteal)
+        makeToggle("🛡️ No Cooldown", 0.55, Color3.fromRGB(0,200,200), toggleNoCooldown)
+        makeToggle("⚡ Super Kick V2", 0.68, Color3.fromRGB(255,100,0), toggleSuperKick)
+        makeToggle("💥 Power Shot", 0.81, Color3.fromRGB(200,50,200), togglePowerShot)
         
-    elseif tab == "Farm" then
-        makeToggle("🌾 Auto Harvest", 0.05, Color3.fromRGB(50,200,50), toggleHarvest)
-        makeToggle("💰 Auto Sell", 0.20, Color3.fromRGB(255,215,0), toggleSell)
-        makeToggle("🌱 Auto Plant", 0.35, Color3.fromRGB(50,200,100), togglePlant)
-        makeToggle("🚶 Auto Walk", 0.50, Color3.fromRGB(100,150,255), toggleWalk)
-        makeToggle("🔄 Auto Replant", 0.65, Color3.fromRGB(50,150,200), function(act)
-            -- Kombinasi harvest + plant
-        end)
+    elseif tab == "Combat" then
+        makeToggle("🔄 Auto Steal Ball", 0.03, Color3.fromRGB(255,150,50), toggleAutoSteal)
+        makeToggle("🎯 Auto Goal", 0.16, Color3.fromRGB(50,200,100), toggleAutoGoal)
+        makeToggle("⚡ Super Kick V2", 0.29, Color3.fromRGB(255,100,0), toggleSuperKick)
+        makeToggle("🏃 Auto Dribble", 0.42, Color3.fromRGB(100,200,255), toggleAutoDribble)
+        makeToggle("🛡️ No Cooldown", 0.55, Color3.fromRGB(0,200,200), toggleNoCooldown)
+        makeToggle("⚔️ Auto Farm", 0.68, Color3.fromRGB(200,50,200), toggleAutoFarm)
+        makeToggle("💥 Power Shot", 0.81, Color3.fromRGB(200,50,200), togglePowerShot)
         
-    elseif tab == "Pet" then
-        makeToggle("🐾 Pet Dupe", 0.05, Color3.fromRGB(255,100,150), togglePetDupe)
-        makeToggle("🥚 Auto Egg", 0.20, Color3.fromRGB(255,200,100), toggleAutoPet)
-        makeToggle("🔄 Auto Roll Pet", 0.35, Color3.fromRGB(200,100,255), toggleAutoPet)
-        makeToggle("⭐ Auto Legendary", 0.50, Color3.fromRGB(255,215,0), function(act)
-            -- Auto roll sampai legendary
+    elseif tab == "Movement" then
+        makeToggle("🕊️ Fly", 0.03, Color3.fromRGB(100,200,255), toggleFly)
+        makeToggle("💨 Speed Hack", 0.16, Color3.fromRGB(150,30,200), toggleSpeed)
+        makeToggle("🧱 NoClip", 0.29, Color3.fromRGB(100,100,200), toggleNoclip)
+        makeToggle("🦘 Super Jump", 0.42, Color3.fromRGB(30,150,200), function(act)
+            hum.JumpPower = act and 200 or 50
         end)
+        makeToggle("🏃 Auto Dribble", 0.55, Color3.fromRGB(100,200,255), toggleAutoDribble)
+        makeToggle("⚡ Super Kick V2", 0.68, Color3.fromRGB(255,100,0), toggleSuperKick)
         
-    elseif tab == "Misc" then
-        makeToggle("🛡️ Anti-Ban", 0.05, Color3.fromRGB(0,200,0), function(act)
-            print("Anti-Ban activated")
+    elseif tab == "Skills" then
+        makeToggle("⚡ Super Kick V2 (Ledakan)", 0.03, Color3.fromRGB(255,100,0), toggleSuperKick)
+        makeToggle("🌀 Curve Ball (Berbelok)", 0.16, Color3.fromRGB(0,200,200), toggleCurveBall)
+        makeToggle("🎯 Instant Goal (Langsung Gol)", 0.29, Color3.fromRGB(255,215,0), toggleInstantGoal)
+        makeToggle("⚡ Skill Spam (Spam Skill)", 0.42, Color3.fromRGB(200,50,200), toggleSkillSpam)
+        makeToggle("🎯 Auto Shoot (Tendang Otomatis)", 0.55, Color3.fromRGB(255,150,50), toggleAutoShoot)
+        makeToggle("💥 Power Shot (Tendangan Super)", 0.68, Color3.fromRGB(200,50,200), togglePowerShot)
+        makeToggle("🛡️ No Cooldown", 0.81, Color3.fromRGB(0,200,200), toggleNoCooldown)
+        
+    elseif tab == "Ball" then
+        makeToggle("🔄 Auto Steal Ball", 0.03, Color3.fromRGB(255,150,50), toggleAutoSteal)
+        makeToggle("🎯 Auto Goal", 0.16, Color3.fromRGB(50,200,100), toggleAutoGoal)
+        makeToggle("🏃 Auto Dribble", 0.29, Color3.fromRGB(100,200,255), toggleAutoDribble)
+        makeToggle("⚡ Super Kick V2", 0.42, Color3.fromRGB(255,100,0), toggleSuperKick)
+        makeToggle("⚔️ Auto Farm", 0.55, Color3.fromRGB(200,50,200), toggleAutoFarm)
+        makeToggle("👁️ ESP Ball", 0.68, Color3.fromRGB(255,255,0), function(act)
+            if act then
+                spawn(function()
+                    while act do
+                        for _, v in pairs(game:GetService("Workspace"):GetDescendants()) do
+                            if v:IsA("Part") and v.Name:lower():find("ball") then
+                                local h = v:FindFirstChild("Highlight")
+                                if not h then
+                                    h = Instance.new("Highlight")
+                                    h.Adornee = v
+                                    h.FillColor = Color3.fromRGB(255, 255, 0)
+                                    h.FillTransparency = 0.1
+                                    h.OutlineTransparency = 0.1
+                                    h.Parent = v
+                                end
+                            end
+                        end
+                        task.wait(0.5)
+                    end
+                end)
+            end
         end)
-        makeToggle("💰 Infinite Coins", 0.20, Color3.fromRGB(255,215,0), toggleInfiniteCoins)
-        makeToggle("👁️ ESP Item", 0.35, Color3.fromRGB(200,150,30), function(act)
-            -- ESP untuk item
-        end)
-        makeToggle("🎯 Auto Click", 0.50, Color3.fromRGB(200,100,50), function(act)
-            -- Auto click semua
-        end)
+        makeToggle("🌀 Curve Ball", 0.81, Color3.fromRGB(0,200,200), toggleCurveBall)
     end
 end
 
@@ -368,5 +731,5 @@ updateTab("Main")
 tabBtns["Main"].BackgroundColor3 = Color3.fromRGB(50, 50, 80)
 tabBtns["Main"].TextColor3 = Color3.fromRGB(255, 255, 255)
 
-print("🌱 GROW A GARDEN - HAMZ EDITION LOADED 🔥")
-print("👑 Created by Hamz")
+print("⚽ BLUE LOCK v3 - HAMZ EDITION LOADED 🔥")
+print("👑 Created by Hamz - OP Skills Added!")
