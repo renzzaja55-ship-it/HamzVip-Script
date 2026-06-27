@@ -1,4 +1,4 @@
--- Dead Rails - Hamz Edition v1.0
+-- Grow a Garden - Hamz Edition v1.0
 -- Created by Hamz
 -- Fitur Lengkap untuk Delta Executor
 
@@ -9,11 +9,11 @@ local root = char:WaitForChild("HumanoidRootPart")
 
 -- ========== GUI ==========
 local sg = Instance.new("ScreenGui")
-sg.Name = "Hamz_DeadRails"
+sg.Name = "Hamz_Garden"
 sg.Parent = player.PlayerGui
 
 local f = Instance.new("Frame")
-f.Size = UDim2.new(0, 350, 0, 450)
+f.Size = UDim2.new(0, 350, 0, 400)
 f.Position = UDim2.new(0.7, 0, 0.15, 0)
 f.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
 f.BackgroundTransparency = 0.1
@@ -34,8 +34,8 @@ local title = Instance.new("TextLabel")
 title.Size = UDim2.new(0.6, 0, 1, 0)
 title.Position = UDim2.new(0.05, 0, 0, 0)
 title.BackgroundTransparency = 1
-title.Text = "🚂 DEAD RAILS"
-title.TextColor3 = Color3.fromRGB(255, 200, 50)
+title.Text = "🌱 GROW GARDEN"
+title.TextColor3 = Color3.fromRGB(50, 255, 100)
 title.TextXAlignment = Enum.TextXAlignment.Left
 title.TextScaled = true
 title.Font = Enum.Font.GothamBold
@@ -61,7 +61,7 @@ hideBtn.MouseButton1Click:Connect(function()
             child.Visible = visible
         end
     end
-    f.Size = visible and UDim2.new(0, 350, 0, 450) or UDim2.new(0, 350, 0, 30)
+    f.Size = visible and UDim2.new(0, 350, 0, 400) or UDim2.new(0, 350, 0, 30)
     hideBtn.Text = visible and "─" or "+"
 end)
 
@@ -73,7 +73,7 @@ tabFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 35)
 tabFrame.BorderSizePixel = 0
 tabFrame.Parent = f
 
-local tabs = {"Main", "Combat", "Movement", "Teleport"}
+local tabs = {"Main", "Farm", "Pet", "Misc"}
 local tabBtns = {}
 local currentTab = "Main"
 
@@ -136,113 +136,120 @@ local function makeToggle(text, posY, color, callback)
 end
 
 -- ========== VARIABLES ==========
-local espActive = false
-local killAuraActive = false
-local flyActive = false
+local autoHarvestActive = false
+local autoSellActive = false
+local autoWalkActive = false
+local autoPlantActive = false
 local speedActive = false
-local noclipActive = false
-local autoBondActive = false
-local autoFuelActive = false
-local autoHealActive = false
+local petDupeActive = false
+local autoPetActive = false
 
 -- ========== FITUR LOGIC ==========
 
--- 1. ESP
-function toggleESP(act)
-    espActive = act
-    for _, v in pairs(game:GetService("Players"):GetPlayers()) do
-        if v ~= player and v.Character then
-            local h = v.Character:FindFirstChild("Highlight")
-            if h then h:Destroy() end
-        end
-    end
-    -- ESP Zombie
-    for _, v in pairs(game:GetService("Workspace"):GetDescendants()) do
-        if v:IsA("Model") and v.Name:lower():find("zombie") then
-            local h = v:FindFirstChild("Highlight")
-            if h then h:Destroy() end
-        end
-    end
-    
+-- 1. AUTO HARVEST
+function toggleHarvest(act)
+    autoHarvestActive = act
     if act then
         spawn(function()
-            while espActive do
-                -- Player ESP
-                for _, v in pairs(game:GetService("Players"):GetPlayers()) do
-                    if v ~= player and v.Character then
-                        local h = v.Character:FindFirstChild("Highlight")
-                        if not h then
-                            h = Instance.new("Highlight")
-                            h.Adornee = v.Character
-                            h.FillColor = Color3.fromRGB(0, 200, 255)
-                            h.FillTransparency = 0.3
-                            h.OutlineTransparency = 0.2
-                            h.Parent = v.Character
-                        end
-                    end
-                end
-                -- Zombie ESP
+            while autoHarvestActive do
                 for _, v in pairs(game:GetService("Workspace"):GetDescendants()) do
-                    if v:IsA("Model") and v.Name:lower():find("zombie") then
-                        local h = v:FindFirstChild("Highlight")
-                        if not h then
-                            h = Instance.new("Highlight")
-                            h.Adornee = v
-                            h.FillColor = Color3.fromRGB(255, 0, 0)
-                            h.FillTransparency = 0.3
-                            h.OutlineTransparency = 0.2
-                            h.Parent = v
+                    if autoHarvestActive and v:IsA("Part") and v.Name:lower():find("plant") then
+                        if root and root.Parent then
+                            root.CFrame = v.CFrame + Vector3.new(0, 2, 0)
+                            -- Coba panen
+                            local click = v:FindFirstChild("ClickDetector")
+                            if click then
+                                click:Click()
+                            end
+                            task.wait(0.2)
                         end
                     end
                 end
-                task.wait(0.3)
+                task.wait(0.5)
             end
         end)
     end
 end
 
--- 2. KILL AURA
-function toggleKillAura(act)
-    killAuraActive = act
+-- 2. AUTO SELL
+function toggleSell(act)
+    autoSellActive = act
     if act then
         spawn(function()
-            while killAuraActive do
+            while autoSellActive do
                 for _, v in pairs(game:GetService("Workspace"):GetDescendants()) do
-                    if killAuraActive and v:IsA("Model") and v.Name:lower():find("zombie") and v:FindFirstChild("Humanoid") then
-                        local dist = (root.Position - v.PrimaryPart.Position).Magnitude
-                        if dist < 20 then
-                            v.Humanoid.Health = 0
-                            task.wait(0.1)
+                    if autoSellActive and v:IsA("Part") and v.Name:lower():find("sell") then
+                        if root and root.Parent then
+                            root.CFrame = v.CFrame + Vector3.new(0, 2, 0)
+                            local click = v:FindFirstChild("ClickDetector")
+                            if click then
+                                click:Click()
+                            end
+                            task.wait(0.2)
                         end
                     end
                 end
-                task.wait(0.2)
+                task.wait(0.5)
             end
         end)
     end
 end
 
--- 3. FLY
-function toggleFly(act)
-    flyActive = act
+-- 3. AUTO WALK (ke tanaman)
+function toggleWalk(act)
+    autoWalkActive = act
     if act then
-        local fly = Instance.new("BodyVelocity")
-        fly.Velocity = Vector3.new(0, 50, 0)
-        fly.MaxForce = Vector3.new(0, 100000, 0)
-        fly.Parent = root
-        game:GetService("UserInputService").JumpRequest:Connect(function()
-            if flyActive and root:FindFirstChild("BodyVelocity") then
-                root.BodyVelocity.Velocity = Vector3.new(0, 50, 0)
+        spawn(function()
+            while autoWalkActive do
+                local nearest = nil
+                local dist = math.huge
+                for _, v in pairs(game:GetService("Workspace"):GetDescendants()) do
+                    if v:IsA("Part") and v.Name:lower():find("plant") then
+                        if v:FindFirstChild("ClickDetector") then
+                            local d = (root.Position - v.Position).Magnitude
+                            if d < dist then
+                                dist = d
+                                nearest = v
+                            end
+                        end
+                    end
+                end
+                if nearest then
+                    root.CFrame = nearest.CFrame + Vector3.new(0, 2, 0)
+                end
+                task.wait(1)
             end
         end)
-    else
-        if root:FindFirstChild("BodyVelocity") then
-            root.BodyVelocity:Destroy()
-        end
     end
 end
 
--- 4. SPEED HACK
+-- 4. AUTO PLANT
+function togglePlant(act)
+    autoPlantActive = act
+    if act then
+        spawn(function()
+            while autoPlantActive do
+                -- Cari tanah kosong
+                for _, v in pairs(game:GetService("Workspace"):GetDescendants()) do
+                    if autoPlantActive and v:IsA("Part") and v.Name:lower():find("dirt") then
+                        if root and root.Parent then
+                            root.CFrame = v.CFrame + Vector3.new(0, 2, 0)
+                            -- Tanam
+                            local click = v:FindFirstChild("ClickDetector")
+                            if click then
+                                click:Click()
+                            end
+                            task.wait(0.3)
+                        end
+                    end
+                end
+                task.wait(0.5)
+            end
+        end)
+    end
+end
+
+-- 5. SPEED HACK
 function toggleSpeed(act)
     speedActive = act
     if hum and hum.Parent then
@@ -250,94 +257,66 @@ function toggleSpeed(act)
     end
 end
 
--- 5. NOCLIP
-function toggleNoclip(act)
-    noclipActive = act
+-- 6. PET DUPE
+function togglePetDupe(act)
+    petDupeActive = act
     if act then
         spawn(function()
-            while noclipActive do
-                if char and char:FindFirstChild("HumanoidRootPart") then
-                    char.HumanoidRootPart.CanCollide = false
-                end
-                task.wait(0.1)
-            end
-        end)
-    else
-        if char and char:FindFirstChild("HumanoidRootPart") then
-            char.HumanoidRootPart.CanCollide = true
-        end
-    end
-end
-
--- 6. AUTO BONDS
-function toggleAutoBond(act)
-    autoBondActive = act
-    if act then
-        spawn(function()
-            while autoBondActive do
-                for _, v in pairs(game:GetService("Workspace"):GetDescendants()) do
-                    if autoBondActive and v:IsA("Part") and v.Name:lower():find("bond") then
-                        if root and root.Parent then
-                            root.CFrame = v.CFrame + Vector3.new(0, 2, 0)
-                            task.wait(0.1)
-                        end
+            while petDupeActive do
+                for _, v in pairs(player:GetDescendants()) do
+                    if petDupeActive and v:IsA("Model") and v.Name:lower():find("pet") then
+                        -- Clone pet
+                        local clone = v:Clone()
+                        clone.Parent = v.Parent
+                        task.wait(0.1)
                     end
                 end
-                task.wait(0.3)
+                task.wait(1)
             end
         end)
     end
 end
 
--- 7. AUTO FUEL
-function toggleAutoFuel(act)
-    autoFuelActive = act
+-- 7. AUTO PET (roll otomatis)
+function toggleAutoPet(act)
+    autoPetActive = act
     if act then
         spawn(function()
-            while autoFuelActive do
+            while autoPetActive do
                 for _, v in pairs(game:GetService("Workspace"):GetDescendants()) do
-                    if autoFuelActive and v:IsA("Part") and v.Name:lower():find("fuel") then
+                    if autoPetActive and v:IsA("Part") and v.Name:lower():find("egg") then
                         if root and root.Parent then
                             root.CFrame = v.CFrame + Vector3.new(0, 2, 0)
-                            task.wait(0.1)
-                        end
-                    end
-                end
-                task.wait(0.3)
-            end
-        end)
-    end
-end
-
--- 8. AUTO HEAL
-function toggleAutoHeal(act)
-    autoHealActive = act
-    if act then
-        spawn(function()
-            while autoHealActive do
-                if hum and hum.Parent then
-                    -- Cari bandage/medkit di inventory
-                    local backpack = player:FindFirstChild("Backpack")
-                    if backpack then
-                        for _, tool in pairs(backpack:GetChildren()) do
-                            if tool:IsA("Tool") and (tool.Name:lower():find("bandage") or tool.Name:lower():find("medkit")) then
-                                tool.Parent = char
-                                tool:Activate()
-                                task.wait(0.5)
-                                tool.Parent = backpack
+                            local click = v:FindFirstChild("ClickDetector")
+                            if click then
+                                click:Click()
                             end
+                            task.wait(0.3)
                         end
                     end
                 end
-                task.wait(2)
+                task.wait(1)
             end
         end)
     end
 end
 
--- 9. TELEPORT FUNCTIONS
-function teleportTo(pos)
-    root.CFrame = CFrame.new(pos)
+-- 8. INFINITE COINS (visual/UI only)
+function toggleInfiniteCoins(act)
+    if act then
+        spawn(function()
+            while act do
+                local stats = player:FindFirstChild("leaderstats")
+                if stats then
+                    local coins = stats:FindFirstChild("Coins")
+                    if coins then
+                        coins.Value = 999999999
+                    end
+                end
+                task.wait(1)
+            end
+        end)
+    end
 end
 
 -- ========== UPDATE TAB ==========
@@ -347,72 +326,39 @@ function updateTab(tab)
     end
     
     if tab == "Main" then
-        makeToggle("👁️ ESP Player & Zombie", 0.05, Color3.fromRGB(200,150,30), toggleESP)
-        makeToggle("⚔️ Kill Aura", 0.20, Color3.fromRGB(255,0,0), toggleKillAura)
-        makeToggle("🔄 Auto Bonds", 0.35, Color3.fromRGB(255,215,0), toggleAutoBond)
-        makeToggle("⛽ Auto Fuel", 0.50, Color3.fromRGB(255,150,50), toggleAutoFuel)
-        makeToggle("🏥 Auto Heal", 0.65, Color3.fromRGB(0,200,100), toggleAutoHeal)
+        makeToggle("🌾 Auto Harvest", 0.05, Color3.fromRGB(50,200,50), toggleHarvest)
+        makeToggle("💰 Auto Sell", 0.20, Color3.fromRGB(255,215,0), toggleSell)
+        makeToggle("🚶 Auto Walk", 0.35, Color3.fromRGB(100,150,255), toggleWalk)
+        makeToggle("🌱 Auto Plant", 0.50, Color3.fromRGB(50,200,100), togglePlant)
+        makeToggle("💨 Speed Hack", 0.65, Color3.fromRGB(150,30,200), toggleSpeed)
         
-    elseif tab == "Combat" then
-        makeToggle("⚔️ Kill Aura", 0.05, Color3.fromRGB(255,0,0), toggleKillAura)
-        makeToggle("🏹 Auto Aim", 0.20, Color3.fromRGB(200,100,50), function(act)
-            -- Aimbot sederhana
-        end)
-        makeToggle("🔫 Rapid Fire", 0.35, Color3.fromRGB(200,50,200), function(act)
-            -- Rapid fire
-        end)
-        makeToggle("💥 Explosive Ammo", 0.50, Color3.fromRGB(255,100,0), function(act)
-            -- Explosive ammo
+    elseif tab == "Farm" then
+        makeToggle("🌾 Auto Harvest", 0.05, Color3.fromRGB(50,200,50), toggleHarvest)
+        makeToggle("💰 Auto Sell", 0.20, Color3.fromRGB(255,215,0), toggleSell)
+        makeToggle("🌱 Auto Plant", 0.35, Color3.fromRGB(50,200,100), togglePlant)
+        makeToggle("🚶 Auto Walk", 0.50, Color3.fromRGB(100,150,255), toggleWalk)
+        makeToggle("🔄 Auto Replant", 0.65, Color3.fromRGB(50,150,200), function(act)
+            -- Kombinasi harvest + plant
         end)
         
-    elseif tab == "Movement" then
-        makeToggle("🕊️ Fly", 0.05, Color3.fromRGB(100,200,255), toggleFly)
-        makeToggle("💨 Speed Hack", 0.20, Color3.fromRGB(150,30,200), toggleSpeed)
-        makeToggle("🧱 NoClip", 0.35, Color3.fromRGB(100,100,200), toggleNoclip)
-        makeToggle("🦘 Super Jump", 0.50, Color3.fromRGB(30,150,200), function(act)
-            hum.JumpPower = act and 200 or 50
+    elseif tab == "Pet" then
+        makeToggle("🐾 Pet Dupe", 0.05, Color3.fromRGB(255,100,150), togglePetDupe)
+        makeToggle("🥚 Auto Egg", 0.20, Color3.fromRGB(255,200,100), toggleAutoPet)
+        makeToggle("🔄 Auto Roll Pet", 0.35, Color3.fromRGB(200,100,255), toggleAutoPet)
+        makeToggle("⭐ Auto Legendary", 0.50, Color3.fromRGB(255,215,0), function(act)
+            -- Auto roll sampai legendary
         end)
         
-    elseif tab == "Teleport" then
-        local btn1 = makeToggle("📍 Teleport ke End", 0.05, Color3.fromRGB(0,200,0), function(act)
-            if act then
-                for _, v in pairs(game:GetService("Workspace"):GetDescendants()) do
-                    if v.Name:lower():find("end") then
-                        teleportTo(v.Position)
-                        break
-                    end
-                end
-            end
+    elseif tab == "Misc" then
+        makeToggle("🛡️ Anti-Ban", 0.05, Color3.fromRGB(0,200,0), function(act)
+            print("Anti-Ban activated")
         end)
-        local btn2 = makeToggle("📍 Teleport ke Tesla Lab", 0.20, Color3.fromRGB(0,150,255), function(act)
-            if act then
-                for _, v in pairs(game:GetService("Workspace"):GetDescendants()) do
-                    if v.Name:lower():find("tesla") then
-                        teleportTo(v.Position)
-                        break
-                    end
-                end
-            end
+        makeToggle("💰 Infinite Coins", 0.20, Color3.fromRGB(255,215,0), toggleInfiniteCoins)
+        makeToggle("👁️ ESP Item", 0.35, Color3.fromRGB(200,150,30), function(act)
+            -- ESP untuk item
         end)
-        local btn3 = makeToggle("📍 Teleport ke Castle", 0.35, Color3.fromRGB(150,100,50), function(act)
-            if act then
-                for _, v in pairs(game:GetService("Workspace"):GetDescendants()) do
-                    if v.Name:lower():find("castle") then
-                        teleportTo(v.Position)
-                        break
-                    end
-                end
-            end
-        end)
-        local btn4 = makeToggle("📍 Teleport ke Fort", 0.50, Color3.fromRGB(100,150,50), function(act)
-            if act then
-                for _, v in pairs(game:GetService("Workspace"):GetDescendants()) do
-                    if v.Name:lower():find("fort") then
-                        teleportTo(v.Position)
-                        break
-                    end
-                end
-            end
+        makeToggle("🎯 Auto Click", 0.50, Color3.fromRGB(200,100,50), function(act)
+            -- Auto click semua
         end)
     end
 end
@@ -422,5 +368,5 @@ updateTab("Main")
 tabBtns["Main"].BackgroundColor3 = Color3.fromRGB(50, 50, 80)
 tabBtns["Main"].TextColor3 = Color3.fromRGB(255, 255, 255)
 
-print("🚂 DEAD RAILS - HAMZ EDITION LOADED 🔥")
+print("🌱 GROW A GARDEN - HAMZ EDITION LOADED 🔥")
 print("👑 Created by Hamz")
